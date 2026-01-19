@@ -1,6 +1,4 @@
-rm(list=ls())
-setwd("C:/R/tesis/comunidades_2023")
-
+# calling neccesary libreries
 library("lattice")
 library("smatr")
 library("data.table")
@@ -16,39 +14,34 @@ library("lme4")
 library("glmmTMB")
 library("fitdistrplus")
 library("ggeffects")
+library("dplyr")
 
-##############Calculo descriptivo#########################
-datos <- read.table("dat_comunidades.csv",
-                    sep = ";",
-                    dec = ".",
-                    header = T)
+setwd("C:/R/...")
+
+### Descriptive/explorative analysis ###
+datos <- read.table("dat_comunidades.csv", sep = ";", dec = ".", header = T) # specify working directory
 
 # inclination and explosition plot #
-datos$pend_c <- factor(datos$pend_c, levels = c("Flat", "Low_inclination", "High_inclination"), 
-                        ordered = F)
+datos$pend_c <- factor(datos$pend_c, levels = c("Flat", "Low_inclination", "High_inclination"), ordered = F) # order the factor levels, this is important for the plots
 
-head(datos)
-
-windows()
-datos$exp[datos$exp < 0] <- datos$exp[datos$exp < 0] * -1
+windows() # optional
+datos$exp[datos$exp < 0] <- datos$exp[datos$exp < 0] * -1 # transform negative to positive values
 bwplot(exp ~ pend_c|piso, data = datos)
 summary(lm(exp ~ pend_c+as.factor(piso), data = datos))
 anova(lm(exp ~ pend_c+as.factor(piso), data = datos))
 
-head(datos)
-library(dplyr)
+head(datos) # optional
 
 datos_env <- datos %>%
   group_by(ud_muestral) %>%
   summarise(
-    exp = mean(exp, na.rm = TRUE),  # Media
-    pend_c = first(pend_c),         # Conservar otros variables (primer valor)
+    exp = mean(exp, na.rm = TRUE),  # average values
+    pend_c = first(pend_c),         
     piso = first(piso),
     or_R = first(or_R)
   ) %>%
   ungroup()
 
-windows()
 m1 <- lm(exp ~ pend_c*as.factor(piso), data = datos_env)
 anova(m1)
 summary(m1)
@@ -59,19 +52,16 @@ ggplot(datos_env, aes(x = factor(pend_c), y = exp)) +
   labs(x = "Rock inclination (°)", y = "Microsite exposition (°)", title = "") +
   theme_bw()
 
-#summary(datos)
-
 datos$piso = as.factor(datos$piso)
 
-# Eliminar filas con liquen musgo roca etc #
+# Data cleaning...
 datos <- droplevels(datos[!datos$morfotipo == "Liquen",])
 datos <- droplevels(datos[!datos$morfotipo == "musgo",])
 datos <- droplevels(datos[!datos$morfotipo == "roca",])
 datos <- droplevels(datos[!datos$morfotipo == "Musgo",])
 datos <- droplevels(datos[!datos$morfotipo == "Roca",])
 
-############### Riqueza ###################
-
+### Richness calculation ###
 library("data.table")
 setDT(datos)
 datos2 <- datos[  , .
@@ -88,24 +78,18 @@ datos3 <- datos[  , .
                          or_ladera, ORNS_lad, or_L, paj, roc, arb, so,
                          mg,rast,ces,alt)]
 
+# Cleaning data...
 datos3 <- droplevels(datos3[!datos3$morfotipo == "Liquen",])
 datos3 <- droplevels(datos3[!datos3$morfotipo == "musgo",])
 datos3 <- droplevels(datos3[!datos3$morfotipo == "roca",])
 datos3 <- droplevels(datos3[!datos3$morfotipo == "Musgo",])
 datos3 <- droplevels(datos3[!datos3$morfotipo == "Roca",])
 
-library("dplyr")
-
-#datos3$morfotipo
-
+# Richness of each grow form (crustose, foliose and fruticose)
 DF4 <- datos3 %>%
 mutate(cr = ifelse(morfotipo=="cr",datos3$riqueza,0),
        fl = ifelse(morfotipo=="fl",datos3$riqueza,0),
        fr = ifelse(morfotipo=="fr",datos3$riqueza,0))
-
-#write.xlsx(DF4, "output.xlsx", sheetName = "DF4")
-
-#head(DF4)
 
 windows()
 ggplot( aes(x=piso, y=cr), data = DF4) +
@@ -128,7 +112,7 @@ ggplot( aes(x=pend_c, y=riqueza), data = datos2) +
   ggtitle("") +
   xlab("")
 
-############## Richness ##############
+### Richness models ###
 subset(datos2, or_R == "Flat")
 
 datos2$pend_c <- factor(datos2$pend_c, levels = c("Flat", "Low_inclination", "High_inclination"), 
@@ -149,7 +133,6 @@ Anova(fit3.1)
 
 vif(fit3.1)
 
-############################################################
 fit3.2 <- glmer(riqueza ~ piso+or_R+pend_c+(1|grad),
                 family=poisson(link="log"), 
                 data=datos2)
@@ -191,68 +174,36 @@ cld_results <- cld(rph2, Letters = letters)
 rph3 <- emmeans(fit3.2, ~ or_R)
 cld_results <- cld(rph3, Letters = letters)
 
-#############################################################
-
+### Model plots ###
 pred.1=ggpredict(fit3.2, terms = c("piso", "pend_c"), ci.lvl = 0.95)
 pred.2=ggpredict(fit3.2, terms = c("piso", "or_R"), ci.lvl = 0.95)
 
 pred.3=ggpredict(fit3.2, terms = c("pend_c"), ci.lvl = 0.95)
 pred.4=ggpredict(fit3.2, terms = c("or_R"), ci.lvl = 0.95)
 
-windows()
-A <- plot(pred.1, facets = F, 
-     connect.lines = F, 
-     colors = "bw",
-     ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Richness")
+windows() # optional
+A <- plot(pred.1, facets = F, connect.lines = F, colors = "bw",ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Richness")
 
-B <- plot(pred.2, facets = F, 
-     connect.lines = F, 
-     colors = "bw",
-     ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Richness")
+B <- plot(pred.2, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Richness")
 
-C <- plot(pred.3, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon") + 
-  theme_bw() +
-  xlab("Rock inclination") +
-  ylab("Richness")
-C
-d <- plot(pred.4, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon") + 
-  theme_bw() +
-  xlab("Rock aspect") +
-  ylab("Richness")
-d
-windows()
+C <- plot(pred.3, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon") + theme_bw() + xlab("Rock inclination") + ylab("Richness")
+
+d <- plot(pred.4, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon") + theme_bw() + xlab("Rock aspect") + ylab("Richness")
+
+windows() # optional
 grid.arrange(A, B, ncol=1)
 
-head(DF4)
-fitCr <- glmer(cr ~ piso*or_R+piso*pend_c+(1|grad),
-              family=poisson(link="log"), 
-              data=DF4)
+# GLM for crustose richness
+fitCr <- glmer(cr ~ piso*or_R+piso*pend_c+(1|grad), family=poisson(link="log"), data=DF4)
 summary(fitCr)
 Anova(fitCr)
 
-fitCr2 <- glmer(cr ~ piso*or_R+piso+pend_c+(1|grad),
-               family=poisson(link="log"), 
-               data=DF4)
+fitCr2 <- glmer(cr ~ piso*or_R+piso+pend_c+(1|grad), family=poisson(link="log"), data=DF4)
 anova(fitCr2, fitCr, test="Chisq")
 summary(fitCr2)
 Anova(fitCr2)
 
-##############################################
-fitCr3 <- glmer(cr ~ piso*or_R+(1|grad),
-                family=poisson(link="log"), 
-                data=DF4)
+fitCr3 <- glmer(cr ~ piso*or_R+(1|grad), family=poisson(link="log"), data=DF4) # final model
 anova(fitCr3, fitCr2, test="Chisq")
 summary(fitCr3)
 Anova(fitCr3)
@@ -273,7 +224,6 @@ Vm2 <- ggplot(residual_data, aes(x = Fitted, y = Residuals)) +
   theme_bw()  # no pattern
 
 # Posthoc
-
 ph_cr <- emmeans(fitCr3, ~ piso * or_R)
 cld_results <- cld(ph_cr, Letters = letters)
 
@@ -283,46 +233,25 @@ flat <- subset(cld_results, or_R == 'Flat')
 north <- subset(cld_results, or_R == 'North')
 south <- subset(cld_results, or_R == 'South')
 
-#############################################
+# Plot for crustose GLM
+pred.3 = ggpredict(fitCr3, terms = c("piso", "or_R"), ci.lvl = 0.95)
 
-pred.3=ggpredict(fitCr3, terms = c("piso", "or_R"), ci.lvl = 0.95)
+c <- plot(pred.3, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Predicted crustose richness")
+c.1 <- plot(pred.3, facets = T, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("") + ylab("") + theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 
-c <- plot(pred.3, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Predicted crustose richness")
+DF4$pend_c <- factor(DF4$pend_c, levels = c("Flat", "Low_inclination", "High_inclination"), ordered = F)
 
-c.1 <- plot(pred.3, facets = T, 
-     connect.lines = F, 
-     colors = "bw",
-     ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("") +
-  ylab("")+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
-
-DF4$pend_c <- factor(DF4$pend_c, levels = c("Flat", "Low_inclination", "High_inclination"), 
-                        ordered = F)
-fitfl <- glmer(fl ~ piso*or_R+piso*pend_c+(1|grad),
-               family=poisson(link="log"), 
-               data=DF4)
+# GLM for foliose richness
+fitfl <- glmer(fl ~ piso*or_R+piso*pend_c+(1|grad), family=poisson(link="log"), data=DF4)
 summary(fitfl)
 Anova(fitfl)
 
-fitfl2 <- glmer(fl ~ piso+or_R+piso*pend_c+(1|grad),
-               family=poisson(link="log"), 
-               data=DF4)
+fitfl2 <- glmer(fl ~ piso+or_R+piso*pend_c+(1|grad), family=poisson(link="log"), data=DF4)
 anova(fitfl, fitfl2, test="Chisq")
 summary(fitfl2)
 Anova(fitfl2)
 
-#############################################
-fitfl3 <- glmer(fl ~ piso*pend_c+(1|grad),
-                family=poisson(link="log"), 
-                data=DF4)
+fitfl3 <- glmer(fl ~ piso*pend_c+(1|grad), family=poisson(link="log"), data=DF4) # final model for foliose richness
 anova(fitfl2, fitfl3, test="Chisq")
 summary(fitfl3)
 Anova(fitfl3)
@@ -342,6 +271,7 @@ Vm3 <- ggplot(residual_data, aes(x = Fitted, y = Residuals)) +
        y = "") +
   theme_bw()
 
+# Post hoc
 ph_cr2 <- emmeans(fitfl3, ~ piso)
 cld_results2 <- cld(ph_cr2, Letters = letters)
 
@@ -352,45 +282,24 @@ flat <- subset(cld_results, pend_c == 'Flat')
 north <- subset(cld_results, pend_c == 'Low_inclination')
 south <- subset(cld_results, pend_c == 'High_inclination')
 
-#############################################
-
+# Plots for foliose GLM
 pred.4=ggpredict(fitfl3, terms = c("piso", "pend_c"), ci.lvl = 0.95)
 pred.4=ggpredict(fitfl3, terms = c("piso"), ci.lvl = 0.95)
-windows()
-d <- plot(pred.4, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Predicted foliose richness")
+windows() # GLM
+d <- plot(pred.4, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Predicted foliose richness")
+d.1 <- plot(pred.4, facets = T, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Predicted foliose richness")+ theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 
-d.1 <- plot(pred.4, facets = T, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Predicted foliose richness")+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
-
-fitfr <- glmer(fr ~ piso*or_R+piso*pend_c+(1|grad),
-               family=poisson(link="log"), 
-               data=DF4)
+# GLM for fruticose richness
+fitfr <- glmer(fr ~ piso*or_R+piso*pend_c+(1|grad), family=poisson(link="log"),  data=DF4)
 summary(fitfr)
 Anova(fitfr)
 
-fitfr2 <- glmer(fr ~ piso+or_R+piso*pend_c+(1|grad),
-               family=poisson(link="log"), 
-               data=DF4)
+fitfr2 <- glmer(fr ~ piso+or_R+piso*pend_c+(1|grad), family=poisson(link="log"), data=DF4)
 anova(fitfr2, fitfr, test="Chisq")
 summary(fitfr2)
 Anova(fitfr2)
 
-###############################################
-fitfr3 <- glmer(fr ~ piso+or_R+pend_c+(1|grad),
-                family=poisson(link="log"), 
-                data=DF4)
+fitfr3 <- glmer(fr ~ piso+or_R+pend_c+(1|grad), family=poisson(link="log"), data=DF4) # final model for fruticose richness
 anova(fitfr3, fitfr2, test="Chisq")
 summary(fitfr3)
 Anova(fitfr3)
@@ -411,7 +320,6 @@ Vm4 <- ggplot(residual_data, aes(x = Fitted, y = Residuals)) +
   theme_bw()  # no pattern
 
 # Post hoc
-
 ph_fr <- emmeans(fitfr3, ~ piso)
 cld_results <- cld(ph_fr, Letters = letters)
 
@@ -421,49 +329,24 @@ cld_results2 <- cld(ph_fr2, Letters = letters)
 ph_fr3 <- emmeans(fitfr3, ~ pend_c)
 cld_results3 <- cld(ph_fr3, Letters = letters)
 
-###############################################
-
+# GLM plots for fruticose richness
 pred.5=ggpredict(fitfr3, terms = c("piso", "pend_c"), ci.lvl = 0.95)
 pred.6=ggpredict(fitfr3, terms = c("piso", "or_R"), ci.lvl = 0.95)
 
 pred.7=ggpredict(fitfr3, terms = c("pend_c"), ci.lvl = 0.95)
 pred.8=ggpredict(fitfr3, terms = c("or_R"), ci.lvl = 0.95)
 
-e <- plot(pred.5, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Predicted fructicose richness")
+e <- plot(pred.5, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Predicted fructicose richness")
 
-f <- plot(pred.6, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon", dodge = 150) + 
-  theme_bw() +
-  xlab("Elevation (m.a.s.l.)") +
-  ylab("Predicted fructicose richness")
+f <- plot(pred.6, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon", dodge = 150) + theme_bw() + xlab("Elevation (m.a.s.l.)") + ylab("Predicted fructicose richness")
 
-windows()
+windows() # optional
 grid.arrange(c,d)
 grid.arrange(e,f)
 
-g <- plot(pred.7, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon") + 
-  theme_bw() +
-  xlab("") +
-  ylab("Inclination")
+g <- plot(pred.7, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon") + theme_bw() + xlab("") + ylab("Inclination")
 
-h <- plot(pred.8, facets = F, 
-          connect.lines = F, 
-          colors = "bw",
-          ci.style = "ribbon") + 
-  theme_bw() +
-  xlab("") +
-  ylab("Aspect")
+h <- plot(pred.8, facets = F, connect.lines = F, colors = "bw", ci.style = "ribbon") + theme_bw() + xlab("") + ylab("Aspect")
 
 #richness fitness validation plots
 grid.arrange(Vm1, Vm2, Vm3, Vm4, ncol=2)
@@ -1493,5 +1376,4 @@ D <- ggplot(data=A_lzi_data2, aes(x=transect, y=A_lzi_mean)) +
 windows()
 grid.arrange(A, B, C, D, ncol=2)
 
-
-# no son restricted: R_cnsa L_gran A_lzi
+# not restricted species: R_cnsa L_gran A_lzi
