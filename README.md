@@ -77,7 +77,7 @@ Implemented GLMMs to test hypotheses on richness and composition.
 
 Conducted multivariate analyses (NMDS, PERMANOVA) and created publication-quality figures.
 
-elevational-plasticity-analysis
+[elevational-plasticity-analysis](elevational-plasticity-analysis)
 
 ## Analysis Pipeline for Transplant Experiment Data
 
