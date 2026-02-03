@@ -678,7 +678,7 @@ R19,0,70,40,5,Pert_cor,0,G1,zero,not_burned,
 R19,0,70,40,5,Pert_cor,0,G2,zero,not_burned,
 R19,0,70,40,5,Pert_cor,0,G3,zero,not_burned,
 R19,0,70,40,5,Pert_cor,13,G4,not_damaged,not_burned,
-R19,0,70,40,5,Pert_cor,3,G5,zero,not_burned,
+R19,0,70,40,5,Pert_cor,3,G5,not_damaged,not_burned,
 R19,0,70,40,5,Rama_sp,0,G1,zero,not_burned,"Ramalina ""pastito"" check ID"
 R19,0,70,40,5,Rama_sp,0,G2,zero,not_burned,
 R19,0,70,40,5,Rama_sp,0,G3,zero,not_burned,
