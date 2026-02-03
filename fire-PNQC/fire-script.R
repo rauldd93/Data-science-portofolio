@@ -29,12 +29,12 @@ head(df)
 # Calculate richness
 # Calculate species richness per rock per grid
 
-richness_df <- df %>%
-  filter(freq > 0) %>%  # Only include species that were actually observed
-  group_by(nro, grid) %>%
-  summarise(richness = n_distinct(spp_lichens), .groups = "drop")
+#richness_df <- df %>%
+#  filter(freq > 0) %>%  # Only include species that were actually observed
+#  group_by(nro, grid) %>%
+#  summarise(richness = n_distinct(spp_lichens), .groups = "drop")
 
-head(richness_df)
+#head(richness_df)
 
 richness_full <- df %>%
   filter(freq > 0) %>%
@@ -73,3 +73,6 @@ bwplot(richness ~ status|zone, data = richness_full)
 xyplot(richness ~ pend|status, data = richness_full) # most of the damaged thalli is on vertical rocks
 
 xyplot(richness ~ exp|status, data = richness_full)
+
+bwplot(richness ~ status|zone, data = richness_full)
+
