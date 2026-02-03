@@ -76,3 +76,20 @@ xyplot(richness ~ exp|status, data = richness_full)
 
 bwplot(richness ~ status|zone, data = richness_full)
 
+# are they differences between damaged and not damaged thalli in the zones?
+
+fit1 <- lm(richness ~ status*zone, data = richness_full)
+summary(fit1)
+anova(fit1) # it seems that zone makes no difference in damage
+
+fit1.1 <- lm(richness ~ status+zone, data = richness_full)
+summary(fit1.1)
+anova(fit1.1) # it seems that zone makes no difference in damage
+plot(fit1.1) # let's try to improve this
+
+library("glmmTMB")
+
+fit2 <- glmmTMB(richness ~ status * zone + (1|nro/grid), 
+                data = richness_full,
+                family = poisson)
+
