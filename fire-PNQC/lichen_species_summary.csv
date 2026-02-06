@@ -1,0 +1,66 @@
+"spp_lichens","Zones","In_Both_Zones","Statuses","Has_Damage","Total_Obs","Burned_Obs","NotBurned_Obs","Damaged_Obs","NotDamaged_Obs"
+"Cand_vit","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,75,30,0,3,72
+"Hyp_rev","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,15,3,0,1,14
+"Leca_disp","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,63,26,0,4,59
+"Parm_ret","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,23,15,0,15,8
+"Pert_cor","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,43,16,0,5,38
+"Psi_dis","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,9,4,0,3,6
+"Punc_st","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,41,9,0,1,40
+"Telo_nod","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,9,4,0,1,8
+"Umb_pol","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,66,21,0,8,58
+"Usn_amb","burned, not_burned",TRUE,"damaged, not_damaged",TRUE,74,29,0,15,59
+"Punc_perr","burned, not_burned",TRUE,"not_damaged",FALSE,51,11,0,0,51
+"Rino_gris","burned, not_burned",TRUE,"not_damaged",FALSE,15,5,0,0,15
+"Ste_ram","burned, not_burned",TRUE,"not_damaged",FALSE,9,4,0,0,9
+"Xan_imi","burned, not_burned",TRUE,"not_damaged",FALSE,32,12,0,0,32
+"Xan_submou","burned, not_burned",TRUE,"not_damaged",FALSE,9,4,0,0,9
+"Bue_aeth","burned",FALSE,"damaged, not_damaged",TRUE,10,10,0,3,7
+"Haem_fenz","burned",FALSE,"damaged",TRUE,5,5,0,5,0
+"Leca_lab","burned",FALSE,"damaged",TRUE,6,6,0,6,0
+"Pert_sp2","burned",FALSE,"damaged, not_damaged",TRUE,4,4,0,3,1
+"Punc_gris","burned",FALSE,"damaged, not_damaged",TRUE,9,9,0,3,6
+"Punc_sp","burned",FALSE,"damaged",TRUE,2,2,0,2,0
+"Punct_perr","burned",FALSE,"damaged",TRUE,2,2,0,2,0
+"Ram_pui","burned",FALSE,"damaged, not_damaged",TRUE,7,7,0,5,2
+"Usn_col","burned",FALSE,"damaged",TRUE,1,1,0,1,0
+"Usn_sp","burned",FALSE,"damaged",TRUE,1,1,0,1,0
+"Xan_far","burned",FALSE,"damaged, not_damaged",TRUE,9,9,0,4,5
+"Xan_ulc","burned",FALSE,"damaged, not_damaged",TRUE,8,8,0,3,5
+"Aca_ama","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Aca_amarilla","not_burned",FALSE,"not_damaged",FALSE,9,0,0,0,9
+"Aca_lor","not_burned",FALSE,"not_damaged",FALSE,32,0,0,0,32
+"Aca_lorz","burned",FALSE,"not_damaged",FALSE,2,2,0,0,2
+"Bue_sulp","burned",FALSE,"not_damaged",FALSE,2,2,0,0,2
+"Buell_aeth","not_burned",FALSE,"not_damaged",FALSE,33,0,0,0,33
+"Calo_cer","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
+"Calo_cin","not_burned",FALSE,"not_damaged",FALSE,20,0,0,0,20
+"Calo_sid","burned",FALSE,"not_damaged",FALSE,2,2,0,0,2
+"Dip_dia","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Dipl_dia","burned",FALSE,"not_damaged",FALSE,1,1,0,0,1
+"Diplo_dia","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
+"Hyp_sp","burned",FALSE,"not_damaged",FALSE,6,6,0,0,6
+"Leca_acunisco","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Leca_acusn","not_burned",FALSE,"not_damaged",FALSE,2,0,0,0,2
+"Leca_neg","not_burned",FALSE,"not_damaged",FALSE,1,0,0,0,1
+"Leca_negra","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Och_par","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
+"Pert_sp","not_burned",FALSE,"not_damaged",FALSE,20,0,0,0,20
+"Phae_ste","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Phaphy_st","not_burned",FALSE,"not_damaged",FALSE,3,0,0,0,3
+"Prot_bad","not_burned",FALSE,"not_damaged",FALSE,15,0,0,0,15
+"Psi_bad","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Ram_sp","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Rama_sp","not_burned",FALSE,"not_damaged",FALSE,1,0,0,0,1
+"Rhi_ino","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Rhi_obs","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
+"Rhiz_geo","burned",FALSE,"not_damaged",FALSE,1,1,0,0,1
+"Rhiz_obs","burned",FALSE,"not_damaged",FALSE,3,3,0,0,3
+"Rino_sp","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Usn_sax","burned",FALSE,"not_damaged",FALSE,4,4,0,0,4
+"Xan_mic","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
+"Xan_micr","burned",FALSE,"not_damaged",FALSE,7,7,0,0,7
+"Xan_moug","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Xan_pli","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Xan_subm","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Xan_tar","not_burned",FALSE,"not_damaged",FALSE,5,0,0,0,5
+"Xan_wri","not_burned",FALSE,"not_damaged",FALSE,10,0,0,0,10
