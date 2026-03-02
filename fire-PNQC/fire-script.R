@@ -370,20 +370,11 @@ df %>%
 
 
 #errores:
-> df %>%
+#> df %>%
 #  +   count(site_id, spp_lichens) %>%
 #  +   filter(n > 1)
 #site_id spp_lichens n
-
-
-
-
-
-
-
-
-
-
+# Fixed?
 
 
 
