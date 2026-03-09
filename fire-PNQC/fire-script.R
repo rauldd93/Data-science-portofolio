@@ -10,6 +10,8 @@ library("FD")
 library("vegan")
 library("tidyverse")
 library("tibble")
+library("ggeffects")
+library("emmeans")
 
 #df <- read.table("fire-PNQC/fire-DF.txt",
 #                 head = T,
@@ -82,7 +84,7 @@ bwplot(freq ~ status|or, data = df) # aspect does not seems to be relevant
 boxplot(freq ~ spp_lichens, data = df)
 bwplot(freq ~ spp_lichens|status, data = df) # very hard to see patterns, I believe that using growth forms should be interesting
 
-# Maybe using only Usnea??
+## Usnea as model ##
 
 df_usn <- df %>%
   filter(spp_lichens=="Usn_amb")
@@ -354,133 +356,219 @@ legend("topright",
 
 head(df)
 
+bwplot(freq ~ status|mft, data = df)
+
 df$site_id <- paste(df$nro, df$grid, sep = "_")
 
+
+## Create species matrix (sites × species)
 community_matrix <- df %>%
+  # Select relevant columns
   select(site_id, spp_lichens, freq) %>%
+  # Pivot to wide format
   pivot_wider(
+    id_cols = site_id,
     names_from = spp_lichens,
     values_from = freq,
     values_fill = 0
+  ) %>%
+  # Convert to matrix (remove site_id column for analysis)
+  column_to_rownames("site_id") %>%
+  as.matrix()
+
+# Create environmental matrix (same order as community matrix)
+env_matrix <- df %>%
+  select(site_id, status, pend, exp, or, mft, zone) %>%
+  distinct(site_id, .keep_all = TRUE) %>%
+  column_to_rownames("site_id")
+
+# Check alignment
+all(rownames(community_matrix) == rownames(env_matrix))
+
+# Calculate species richness and diversity
+env_matrix$richness <- specnumber(community_matrix)
+env_matrix$shannon <- diversity(community_matrix, index = "shannon")
+env_matrix$simpson <- diversity(community_matrix, index = "simpson")
+
+# Test differences in diversity
+t.test(richness ~ status, data = env_matrix)
+windows()
+boxplot(richness ~ status, data = env_matrix, main = "Species Richness by Fire Status")
+boxplot(shannon ~ status, data = env_matrix, main = "Species Richness by Fire Status")
+boxplot(simpson ~ status, data = env_matrix, main = "Species Richness by Fire Status")
+
+# NMS
+
+# NMDS with Bray-Curtis dissimilarity
+set.seed(123)  # for reproducibility
+nmds <- metaMDS(community_matrix, 
+                distance = "bray",
+                k = 2,  # number of dimensions
+                trymax = 100)
+
+# Check stress (should be < 0.2)
+nmds$stress
+
+# Plot NMDS
+plot(nmds, type = "n")
+points(nmds, display = "sites", pch = 19, 
+       col = ifelse(env_matrix$status == "burned", "red", "blue"))
+text(nmds, display = "species", cex = 0.7, col = "darkgreen")
+legend("topright", legend = c("Burned", "Damaged"), 
+       col = c("red", "blue"), pch = 19)
+
+# Add environmental vectors
+ef <- envfit(nmds, env_matrix[, c("pend", "mft", "richness")], permutations = 999)
+plot(ef, add = TRUE, col = "purple")
+
+# CCA with environmental variables
+cca_model <- cca(community_matrix ~ status + pend + exp + or, 
+                 data = env_matrix)
+
+# Check results
+summary(cca_model)
+anova(cca_model)  # Overall test
+anova(cca_model, by = "term")  # Test each term
+anova(cca_model, by = "axis")  # Test each axis
+
+# Plot CCA
+plot(cca_model, type = "n")
+points(cca_model, display = "sites", pch = 19,
+       col = ifelse(env_matrix$status == "burned", "red", "blue"))
+text(cca_model, display = "species", cex = 0.7, col = "darkgreen")
+text(cca_model, display = "bp", col = "purple", cex = 0.8)  # environmental variables
+
+# Hellinger-transform species data (recommended for RDA)
+com_hel <- decostand(community_matrix, method = "hellinger")
+
+# RDA with environmental variables
+rda_model <- rda(com_hel ~ status + pend + exp + or + mft, 
+                 data = env_matrix)
+
+# Variance partitioning
+anova(rda_model)
+RsquareAdj(rda_model)
+
+# Plot
+plot(rda_model, type = "n")
+points(rda_model, display = "sites", pch = 19,
+       col = ifelse(env_matrix$status == "burned", "red", "blue"))
+text(rda_model, display = "species", cex = 0.7, col = "darkgreen")
+text(rda_model, display = "bp", col = "purple", cex = 0.8)
+
+# Create trait matrix (if you have multiple traits)
+# For now, using mft as main trait
+trait_matrix <- df %>%
+  select(spp_lichens, mft) %>%
+  distinct(spp_lichens, .keep_all = TRUE) %>%
+  column_to_rownames("spp_lichens")
+
+# Create a comprehensive visualization
+library(ggplot2)
+library(patchwork)
+
+# NMDS scores for plotting
+nmds_scores <- as.data.frame(scores(nmds)$sites)
+nmds_scores$status <- env_matrix$status
+nmds_scores$pend <- env_matrix$pend
+
+p1 <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2, color = status)) +
+  geom_point(size = 3) +
+  stat_ellipse() +
+  theme_minimal() +
+  ggtitle("Community Composition by Fire Status")
+
+p2 <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2, color = pend)) +
+  geom_point(size = 3) +
+  scale_color_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  ggtitle("Community Composition by Slope")
+
+p1 + p2
+
+# Fourth-corner analysis
+# First, ensure all matrices align
+com_order <- community_matrix[, rownames(trait_matrix)]
+
+env <- as.data.frame(env_matrix[, c("status", "pend", "exp", "or")])
+
+# First, let's check and prepare our data properly
+
+# 1. Check the structure of our objects
+str(env_matrix[, c("status", "pend", "exp", "or")])
+str(com_order)
+str(trait_matrix)
+
+# 2. Convert environmental data to data frame with correct types
+env_df <- env_matrix[, c("status", "pend", "exp", "or")] %>%
+  as.data.frame() %>%
+  mutate(
+    # Convert categorical variables to factors
+    status = as.factor(status),
+    exp = as.numeric(exp),
+    or = as.factor(or),
+    # Keep pend as numeric
+    pend = as.numeric(pend)
   )
 
-df %>%
-  count(site_id, spp_lichens) %>%
-  filter(n > 1)
+# 3. Ensure trait matrix is a data frame with species as rows
+trait_df <- trait_matrix %>%
+  as.data.frame() %>%
+  mutate(mft = as.factor(mft))  # ensure mft is numeric
+
+# 4. Ensure community matrix is numeric and has species as columns
+# (it should already have this structure from our earlier step)
+com_df <- as.data.frame(com_order)
+
+# 5. Verify all species names match between community and trait matrices
+all(colnames(com_df) %in% rownames(trait_df))
+all(rownames(trait_df) %in% colnames(com_df))
+
+# If they don't match perfectly, align them:
+common_spp <- intersect(colnames(com_df), rownames(trait_df))
+com_df <- com_df[, common_spp]
+trait_df <- trait_df[common_spp, , drop = FALSE]
+
+# 6. Now try fourth-corner again
+library(ade4)  # sometimes fourthcorner comes from ade4
+
+fourth_ade4 <- fourthcorner(
+  env_df,           # environmental variables
+  com_df,           # community data (sites × species)
+  trait_df,         # trait data (species × traits)
+  modeltype = "3",
+  nrepet = 999
+)
+
+summary(fourth_ade4)
+plot(fourth_ade4)
+
+################ FD  #########
+
+# Calculate CWM of mft for each site
+
+head(df)
+
+df$site_id <- paste(df$nro, df$grid, sep = "_")
+
+head(df)
+
+cwm <- functcomp(trait_matrix, community_matrix)
+
+# Add to env_matrix
+env_matrix$cwm_mft <- cwm$mft
+
+env_matrix$cwm_mft
+env_matrix$status
+
+# Model CWM response
+cwm_model <- lm(status ~ cwm_mft + pend + exp + zone, data = env_matrix)
+summary(cwm_model)
 
 
-#errores:
-#> df %>%
-#  +   count(site_id, spp_lichens) %>%
-#  +   filter(n > 1)
-#site_id spp_lichens n
-# Fixed?
 
 
-
-
-g1 <- ggplot(envxp, aes(x = zone, 
-                        y = resCWM$mft_crustose, 
-                        fill = status)) +
-  geom_boxplot() +
-  theme_bw() + 
-  labs(x = "", y = "Crustose CWM") +
-  scale_fill_manual(values = c("damaged" = "red", "not_damaged" = "gray"))
-
-g2 <- ggplot(envxp, aes(x = zone, 
-                        y = resCWM$mft_foliose, 
-                        fill = status)) +
-  geom_boxplot() +
-  theme_bw() + 
-  labs(x = "", y = "Foliose CWM") +
-  scale_fill_manual(values = c("damaged" = "red", "not_damaged" = "gray"))
-
-g3 <- ggplot(envxp, aes(x = zone, 
-                        y = resCWM$mft_fruticose, 
-                        fill = status)) +
-  geom_boxplot() +
-  theme_bw() + 
-  labs(x = "", y = "Fruticose CWM") +
-  scale_fill_manual(values = c("damaged" = "red", "not_damaged" = "gray"))
-
-
-#library("gridExtra")
-grid.arrange(g1, g2, g3, ncol=2)
-
-#####################################
-
-# GLMs con CWM_mft
-DF <- cbind(resCWM,envxp)
-summary(DF)
-
-DF$crt    <- with(DF, replace(mft_crustose, mft_crustose == 0, 0.001))
-DF$crt <- with(DF, replace(mft_crustose, mft_crustose == 1, 0.99))
-DF$flt <- with(DF, replace(mft_foliose, mft_foliose == 0, 0.001))
-DF$frtt <- with(DF, replace(mft_fruticose, mft_fruticose  == 0, 0.001))
-
-#DF$pend_c <- factor(DF$pend_c, levels = c("plana", "media", "vertical"), 
-     #               ordered = F)
-#DF$or_R <- factor(DF$or_R, levels = c("plana", "N", "S"), 
-                #  ordered = F)
-summary(DF)
-
-p1 <- glmmTMB(crt ~ status*zone + status*pend_c + status*or, 
-              data = DF, family = beta_family)
-summary(p1)
-Anova(p1)
-
-p1.1 <- glmmTMB(crt ~ status*zone + status*pend_c, 
-                data = DF, family = beta_family)
-anova(p1, p1.1, test="Chisq")
-summary(p1.1)
-Anova(p1.1)
-
-p1.2 <- glmmTMB(crt ~ status+zone + status*pend_c, 
-                data = DF, family = beta_family)
-anova(p1.1, p1.2, test="Chisq")
-summary(p1.2)
-Anova(p1.2)
-
-p1.3 <- glmmTMB(crt ~ status+zone + pend_c, 
-                data = DF, family = beta_family)
-anova(p1.3, p1.2, test="Chisq")
-summary(p1.3)
-Anova(p1.3)
-
-library("ggeffects")
-library("emmeans")
-
-pred.Cr=ggemmeans(p1.3, terms = c("zone", "status"))
-pred.Cr2=ggemmeans(p1.3, terms = c("zone", "pend_c"))
-
-a <- plot(pred.Cr) + theme_bw() +
-  xlab("Zone") +
-  ylab("Predicted crustose CWM")
-
-b <- plot(pred.Cr2) + theme_bw() +
-  xlab("Zone") +
-  ylab("Predicted crustose CWM")
-
-
-p2 <- glmmTMB(flt ~ status*zone + status*pend_c, 
-                data = DF, family = beta_family)
-summary(p2)
-Anova(p2)
-
-p2.1 <- glmmTMB(flt ~ status*zone, 
-              data = DF, family = beta_family)
-anova(p2.1, p2, test="Chisq")
-summary(p2.1)
-Anova(p2.1)
-
-p2.2 <- glmmTMB(flt ~ status+zone, 
-                data = DF, family = beta_family)
-anova(p2.2, p2.1, test="Chisq")
-summary(p2.2)
-Anova(p2.2)
-
-
-########################
+#################################################################################
 
 # Extract functional diversity indices
 functional_indices <- data.frame(
@@ -509,7 +597,6 @@ functional_indices
 
 windows()
 boxplot(FRic ~ status, data = functional_indices)
-
 
 library(lme4)
 library(lmerTest)
@@ -540,3 +627,4 @@ ggplot(functional_indices, aes(x = zone, y = FRic, fill = status)) +
        y = "Functional Richness (FRic)") +
   theme_minimal() +
   scale_fill_manual(values = c("damaged" = "orange", "not_damaged" = "steelblue"))
+
