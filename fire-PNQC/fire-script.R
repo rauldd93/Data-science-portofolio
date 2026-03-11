@@ -12,6 +12,8 @@ library("tidyverse")
 library("tibble")
 library("ggeffects")
 library("emmeans")
+library("viridis")
+
 
 #df <- read.table("fire-PNQC/fire-DF.txt",
 #                 head = T,
@@ -38,7 +40,6 @@ df <- df %>%
 df <- df %>%
   filter(!status %in% c("zero"))
 
-head(df)
 df <- df %>%
   mutate(status = case_when(
     status %in% c("burned", "damaged") ~ "damaged",
@@ -61,8 +62,8 @@ df <- df %>%
                       labels = c("flat", "mid", "vert"),
                       include.lowest = TRUE))
 
-plot(freq ~ pend_c, data=df)
-bwplot(freq ~ status|pend_c, data=df)
+#plot(freq ~ pend_c, data=df)
+#bwplot(freq ~ status|pend_c, data=df)
 
 # Convert aspect degrees to ORNS index, -1 = NORTH, 1 = SOUTH
 
@@ -356,7 +357,9 @@ legend("topright",
 
 head(df)
 
+windows()
 bwplot(freq ~ status|mft, data = df)
+bwplot(freq ~ status|reprod, data = df)
 
 df$site_id <- paste(df$nro, df$grid, sep = "_")
 
@@ -494,10 +497,7 @@ env <- as.data.frame(env_matrix[, c("status", "pend", "exp", "or")])
 
 # First, let's check and prepare our data properly
 
-# 1. Check the structure of our objects
-str(env_matrix[, c("status", "pend", "exp", "or")])
-str(com_order)
-str(trait_matrix)
+
 
 # 2. Convert environmental data to data frame with correct types
 env_df <- env_matrix[, c("status", "pend", "exp", "or")] %>%
@@ -551,9 +551,69 @@ head(df)
 
 df$site_id <- paste(df$nro, df$grid, sep = "_")
 
-head(df)
+# Create community matrix with sites as rows and species as columns
+community_matrix <- df %>%
+  # If you have multiple samples per site, you might want to aggregate
+  group_by(site_id, spp_lichens) %>%
+  summarise(abundance = sum(freq), .groups = "drop") %>%
+  pivot_wider(names_from = spp_lichens, 
+              values_from = abundance, 
+              values_fill = 0) %>%
+  column_to_rownames("site_id")
 
-cwm <- functcomp(trait_matrix, community_matrix)
+# View the community matrix
+head(community_matrix[, 1:10]) # first 10 species
+
+# Create trait matrix (species × traits)
+# First, get unique species-trait combinations
+trait_data <- df %>%
+  select(spp_lichens, mft, reprod) %>%
+  distinct() %>%
+  # If mft is categorical, you might want to keep it as factor
+  mutate(mft = as.factor(mft),
+         reprod = as.factor(reprod)) %>%
+  column_to_rownames("spp_lichens")
+
+env_matrix <- df %>%
+  select(site_id, status, pend, exp, or, zone) %>%
+  distinct(site_id, .keep_all = TRUE) %>%
+  column_to_rownames("site_id")
+head(env_matrix)
+
+trait_data
+
+all(colnames(community_matrix) == rownames(trait_data))
+community_matrix <- community_matrix[,match(rownames(trait_data), colnames(community_matrix))]
+all(colnames(community_matrix) == rownames(trait_data))
+
+trait_data <- as.matrix(trait_data)
+community_matrix <- as.matrix(community_matrix)
+
+resCWM <- functcomp(trait_data, community_matrix, CWM.type = "all")
+head(resCWM)
+
+colnames(env_matrix)
+
+windows()
+# Crustose CWM
+g1 <- ggplot(env_matrix,aes(x = zone, 
+                            y = resCWM$mft_crustose, 
+                            fill=status))+
+  geom_boxplot()+
+  theme_bw() + labs(x="") +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="black", size=1, alpha=0.5, width = 0.1)
+g1
+
+g1 <- ggplot(env_matrix,aes(x = pend, 
+                            y = resCWM$mft_crustose, 
+                            shape=status))+
+  geom_point()+
+  geom_smooth(method = "lm", formula = y ~ x, se=T)+
+  theme_bw() + labs(x="") +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="black", size=1, alpha=0.5, width = 0.1)
+g1
 
 # Add to env_matrix
 env_matrix$cwm_mft <- cwm$mft
@@ -628,3 +688,5 @@ ggplot(functional_indices, aes(x = zone, y = FRic, fill = status)) +
   theme_minimal() +
   scale_fill_manual(values = c("damaged" = "orange", "not_damaged" = "steelblue"))
 
+git config --global user.email "raulenriquedd@hotmail.com"
+git config --global user.name "rauldd"
