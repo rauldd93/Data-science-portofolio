@@ -91,17 +91,11 @@ Scripts for model selection, inference, and visualizing interaction effects (ele
 
 ## Predictive Modeling for Chemical Variation
 
-Tools: R (caret, pls)
+Tools: R (lattice, ggeffects, glmmTMB, car, fitdistrplus, multcompView, postHoc, ggplot2)
 
-Developed Partial Least Squares (PLS) regression models to predict usnic acid concentration from environmental variables.
+Developed models (GLMs) to describe usnic acid concentration of Usnea amblyoclada thalli along an elevational gradient 
 
-hydrophobicity-protocol-analysis
-
-## Data Processing for Novel Functional Trait
-
-ools: R (imageR?, tidyverse) // Specify if you used image analysis
-
-Code for quantifying lichen thallus hydrophobicity from experimental images/data.
+[ecochemistry-analysis](ecochemestry-analysis)
 
 # 🛠️ Skills & Tools
 
@@ -111,7 +105,7 @@ Advanced R: Statistical modeling (lme4, glmmTMB, brms), data manipulation (tidyv
 
 Statistics: Generalized Linear Mixed Models (GLMM), Bayesian inference, ordination (PCA, NMDS, RDA), time-series analysis, experimental design.
 
-Version Control & Collaboration: Git, GitHub, Slack.
+Version Control & Collaboration: Git, GitHub.
 
 ## Domain Expertise:
 
@@ -138,6 +132,8 @@ Advisor: Dr. Juan Manuel Rodríguez
 
 ## Licentiate in Environmental Sciences
 National University of Asunción, Paraguay
+
+[Certifications](certifications)
 
 # 💡 What I Can Bring to Your Team 
 
