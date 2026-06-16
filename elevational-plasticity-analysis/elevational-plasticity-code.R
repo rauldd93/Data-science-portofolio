@@ -18,7 +18,7 @@ library("kableExtra")
 
 ############# Data reading ##########
 
-setwd("C:/R/tesis/trasplante") #set working directory, this is different for each user
+setwd("C:/R/...") #set working directory, this is different for each user
 
 DFt <- read.table("CRH_trasplante.csv",
                   sep = ";",
