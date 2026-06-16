@@ -81,13 +81,13 @@ Conducted multivariate analyses (NMDS, PERMANOVA) and created publication-qualit
 
 ## Analysis Pipeline for "Phenotypic plasticity in two saxicolous lichen species..."
 
-Tools: R (lme4, MASS, MuMIn, emmeans, multcomp, ggplot2, dplyr)
+Tools: R (lme4, MASS, MuMIn, emmeans, multcomp, ggplot2, dplyr, survival)
 
 Reproducible workflow for analyzing multi-response phenotypic plasticity data.
 
 Scripts for model selection, inference, and visualizing interaction effects (elevation × microsite).
 
-[elevational-plasticity-code](elevational-plasticity-analysis/elevational-plasticity-code.R)
+[elevational-plasticity-code](elevational-plasticity-analysis)
 
 ## Predictive Modeling for Chemical Variation
 
