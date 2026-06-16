@@ -65,8 +65,6 @@ For a complete list, please see my [ResearchGate](https://www.researchgate.net/p
 
 # 💻 Technical Projects & Code Repositories
 
-[lichen-community-glmms](lichen-community-glmms)
-
 ## R Code for: "Lichen diversity and community assembly..."
 
 Tools: R (lme4, vegan, tidyverse)
