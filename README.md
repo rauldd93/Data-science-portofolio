@@ -35,7 +35,7 @@ Pioneered novel functional trait measurements. Managed a complex experimental de
 
 # Ecophysiology & Climate Response
 
-- Díaz, R., et al. (2024). Phenotypic plasticity in two saxicolous lichen species: Elevation and microsite effects on physiological and biochemical responses.
+- Díaz, R., et al. (2024). Phenotypic plasticity in two saxicolous lichen species: Elevation and microsite effects on physiological and biochemical responses. [DOI](https://doi.org/10.1016/j.funeco.2026.101497)
 
 Key Data Challenge: Integrated disparate data types (chemical concentrations, water kinetics, morphology) into a unified analytical framework using a suite of generalized linear mixed models.
 
@@ -79,15 +79,15 @@ Conducted multivariate analyses (NMDS, PERMANOVA) and created publication-qualit
 
 [elevational-plasticity-analysis](elevational-plasticity-analysis)
 
-## Analysis Pipeline for Transplant Experiment Data
+## Analysis Pipeline for "Phenotypic plasticity in two saxicolous lichen species..."
 
-Tools: R (lme4, MuMIn, ggplot2)
+Tools: R (lme4, MASS, MuMIn, emmeans, multcomp, ggplot2, dplyr)
 
 Reproducible workflow for analyzing multi-response phenotypic plasticity data.
 
 Scripts for model selection, inference, and visualizing interaction effects (elevation × microsite).
 
-usnic-acid-chemometrics
+[elevational-plasticity-code](elevational-plasticity-analysis/elevational-plasticity-code.R)
 
 ## Predictive Modeling for Chemical Variation
 
