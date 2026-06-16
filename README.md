@@ -77,7 +77,7 @@ Implemented GLMMs to test hypotheses on richness and composition.
 
 Conducted multivariate analyses (NMDS, PERMANOVA) and created publication-quality figures.
 
-[elevational-plasticity-analysis](elevational-plasticity-analysis)
+[elevational-community-glmms](lichen-community-glmms)
 
 ## Analysis Pipeline for "Phenotypic plasticity in two saxicolous lichen species..."
 
@@ -87,7 +87,7 @@ Reproducible workflow for analyzing multi-response phenotypic plasticity data.
 
 Scripts for model selection, inference, and visualizing interaction effects (elevation × microsite).
 
-[elevational-plasticity-code](elevational-plasticity-analysis)
+[elevational-plasticity-analysis](elevational-plasticity-analysis)
 
 ## Predictive Modeling for Chemical Variation
 
