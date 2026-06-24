@@ -1,8 +1,5 @@
 rm(list=ls())
 
-#git config --global user.email "raulenriquedd@hotmail.com"
-#git config --global user.name "rauldd"
-
 setwd("C:/R/Data-science-portofolio/lichen-functional-traits")
 
 library("ggeffects")
