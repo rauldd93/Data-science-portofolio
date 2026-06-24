@@ -25,7 +25,7 @@ A selection of my peer-reviewed research. All projects involved significant data
 
 # Community & Functional Ecology
 
-- Díaz, R., et al. (2023). Lichen diversity and community assembly along elevational gradients in mountains of central Argentina. Cryptogamie Mycologie. [DOI](https://sciencepress.mnhn.fr/en/periodiques/mycologie/47/3).
+- Díaz, R., et al. (2023). Determinants of Lichen Diversity and Community Assembly along Elevational Gradients in Central Argentine Mountains. Cryptogamie Mycologie. [DOI](https://sciencepress.mnhn.fr/en/periodiques/mycologie/47/3).
 
 Core PhD work. Analyzed heterogeneous species abundance, frequency, and functional trait data using GLMMs and multivariate ordination techniques (e.g., NMDS, PERMANOVA) to disentangle assembly drivers.
 
@@ -65,7 +65,7 @@ For a complete list, please see my [ResearchGate](https://www.researchgate.net/p
 
 # 💻 Technical Projects & Code Repositories
 
-## R Code for: "Lichen diversity and community assembly..."
+## R Code for: "Determinants of Lichen Diversity and Community Assembly..."
 
 Tools: R (lme4, vegan, tidyverse)
 
