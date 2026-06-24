@@ -2,7 +2,7 @@
 
 This repository contains the data processing, statistical modeling, and visualization code for the paper:
 
-**10.5252/cryptogamie-mycologie2026v47a3**
+**[10.5252/cryptogamie-mycologie2026v47a3](http://cryptogamie.com/mycologie/47/3)**
 
 ## Analysis Overview
 
