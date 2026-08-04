@@ -21,12 +21,12 @@ library("kableExtra")
 setwd("C:/R/...") #set working directory, this is different for each user
 
 DFt <- read.table("CRH_trasplante.csv",
-                  sep = ";",
+                  sep = ",",
                   dec = ".",
                   header = T) 
 
 DF <- read.table("hidrofobicidad.csv",
-                 sep = ";",
+                 sep = ",",
                  dec = ".",
                  header = T) 
 
